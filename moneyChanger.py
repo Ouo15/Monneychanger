@@ -12,8 +12,8 @@ endpoint = "https://models.github.ai/inference"
 model = "openai/gpt-4.1-mini"
 
 client = OpenAI(
-    base_url=endpoint,
-    api_key=token,
+    base_url = endpoint,
+    api_key = token,
 )
 
 load_dotenv()
