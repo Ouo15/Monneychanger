@@ -6,6 +6,7 @@ import requests
 import json
 import streamlit as st
 from openai import OpenAI
+from langsmith import wrappers, traceable
 
 token = os.environ["GITHUB_TOKEN"]
 endpoint = "https://models.github.ai/inference"
@@ -19,8 +20,12 @@ client = OpenAI(
 load_dotenv()
 EXCHANGERATE_API_KEY = os.getenv('EXCHANGERATE_API_KEY')
 
+os.environ["LANGSMITH_TRACING"] = "true"
+os.getenv("LANGCHAIN_API_KEY")
+os.environ["LANGCHAIN_PROJECT"] = "moneychanger"
 
 
+@traceable
 def get_exchange_rate(base: str, target: str, amount: str) -> Tuple:
     """Return a tuple of (base, target, amount, conversion_result (2 decimal places))"""
     url = f"https://v6.exchangerate-api.com/v6/{EXCHANGERATE_API_KEY}/pair/{base}/{target}/{amount}"
@@ -29,6 +34,7 @@ def get_exchange_rate(base: str, target: str, amount: str) -> Tuple:
 
 print(get_exchange_rate("USD","GBP", "350"))
 
+@traceable
 def call_llm(textbox_input) -> Dict:
     """Make a call to the LLM with the textbox_input as the prompt.
        The output from the LLM should be a JSON (dict) with the base, amount and target"""
@@ -84,6 +90,7 @@ def call_llm(textbox_input) -> Dict:
     else:
         return response#.choices[0].message.content
 
+@traceable
 def run_pipeline(user_input):
     """Based on textbox_input, determine if you need to use the tools (function calling) for the LLM.
     Call get_exchange_rate(...) if necessary"""
